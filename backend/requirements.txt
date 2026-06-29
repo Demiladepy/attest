@@ -1,0 +1,17 @@
+genblaze-core>=0.3.0
+genblaze-s3>=0.3.0
+cryptography>=42.0.0
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+pydantic-settings>=2.6.0
+httpx>=0.28.0
+python-multipart>=0.0.12
+sqlalchemy>=2.0.0
+aiosqlite>=0.20.0
+
+# Optional provider packs — install when API keys are configured
+# genblaze[all]
+
+# Compliance embeds (install when building full pipeline)
+# c2pa-python
+# trustmark
