@@ -52,8 +52,13 @@ Hero generate (costs GMI):
 .\.venv\Scripts\python -m attest.scripts.gmi_smoke --full
 ```
 
-## Historic local pin (2026-07-01 — not judge URL)
+## Local pin (2026-07-18 — signed post-canonicalization-fix, B2-backed, not judge URL)
 
 ```
-ASSET_URL=http://localhost:8000/assets/demo-workspace/14f58170-383f-487c-bd59-7ce8b5109f29/output.png
+ASSET_URL=http://localhost:8000/api/storage/demo-workspace/0c13df8b-ee35-4e0b-b720-52be995d197b/output.png
+MANIFEST_URL=http://localhost:8000/api/storage/demo-workspace/0c13df8b-ee35-4e0b-b720-52be995d197b/manifest.json
 ```
+
+> ⚠️ Assets generated **before 2026-07-18** (e.g. run `14f58170…`) fail Ed25519 verification by
+> design: they were signed with the pre-fix canonicalization (attest stub included in the signed
+> payload). Do not use them for the pass beat. Regenerate instead.

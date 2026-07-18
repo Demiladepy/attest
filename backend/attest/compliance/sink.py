@@ -45,6 +45,10 @@ class ComplianceEnvelope:
         if self.parent_run_id:
             core["parent_run_id"] = self.parent_run_id
 
+        # Sign the manifest WITHOUT any attest block — the verifier excludes the
+        # entire "attest" key when re-hashing, so anything under it (including a
+        # provider transcript stub) must not be part of the signed payload.
+        core.pop("attest", None)
         signature = self.signer.sign_manifest(core, signed_at=now)
         core["attest"] = {
             "version": "0.1.0",

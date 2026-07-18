@@ -20,6 +20,30 @@ export type VerificationCheck = {
   detail: string;
 };
 
+export type ManifestData = {
+  run_id?: string;
+  parent_run_id?: string | null;
+  tenant_id?: string;
+  created_at?: string;
+  brief?: string;
+  pipeline?: string;
+  classification?: { summary?: string; model?: string };
+  outputs?: Array<{ modality?: string; sha256?: string; mime?: string; provider?: string }>;
+  attest?: {
+    version?: string;
+    signature?: {
+      algorithm?: string;
+      public_key_hex?: string;
+      signature_b64?: string;
+      signed_at?: string;
+      manifest_sha256?: string;
+    };
+    watermark?: { detected?: boolean; confidence?: number; method?: string };
+    c2pa?: { embedded?: boolean; valid?: boolean; detail?: string };
+    object_lock?: { mode?: string; retain_days?: number };
+  };
+};
+
 export type VerificationResult = {
   asset_url: string;
   overall: "pass" | "fail" | "warn";
@@ -31,8 +55,21 @@ export type VerificationResult = {
     created_at: string;
     depth?: number;
   }>;
-  manifest?: { run_id?: string } | null;
+  manifest?: ManifestData | null;
 };
+
+export type HealthStatus = {
+  status?: string;
+  pipeline?: string;
+  b2_write_ok?: boolean;
+  warnings?: string[];
+};
+
+export async function fetchHealth(): Promise<HealthStatus> {
+  const res = await fetch(`${API_BASE}/api/health`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Health check failed");
+  return res.json();
+}
 
 export async function fetchAssets(): Promise<Asset[]> {
   const res = await fetch(`${API_BASE}/api/assets`, { cache: "no-store" });

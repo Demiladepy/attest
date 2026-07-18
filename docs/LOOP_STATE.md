@@ -72,6 +72,7 @@ stop_loop: false        # flip true to halt daily wakes
 | 2026-07-13 | A1–A11 packaging | Docs, pin_status, handoff/DEPLOY/README; pytest 12 ok; B2 write OK native; loop armed |
 | 2026-07-14 | A12 | Region/public-base warnings in urls + health + pin_status; tests extended; old sleeper killed + re-armed |
 | 2026-07-18 | A13 + env fix | `.env` fixed live with operator (region us-east-005, public base cleared, dup-key typo); pin_status **zero warnings**, storage_proxy true; `DEPLOY_ENV_CHECKLIST.md` written; pytest 14 ok; safety commit of all work since Jun 29 |
+| 2026-07-18 | Core fix + verifier UX | **CRITICAL: Ed25519 canonicalization bug** — pipelines pre-seed `attest.transcript`, sink signed it, verifier strips whole `attest` key → every real asset failed verification. Fixed in `sink.py` (+regression test, 15 pass). Also fixed verifier deep-link race (auto-verified empty URL → red FAIL on judge links). New verifier UX: verdict banner, image preview w/ VERIFIED/TAMPERED stamp, provenance card, copy-link. Console offline banner. Full loop browser-verified: generate → green → tamper → red, via B2 proxy URLs. Pushed to github.com/Demiladepy/attest |
 
 ## Next tick instruction
 

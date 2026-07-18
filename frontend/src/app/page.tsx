@@ -31,17 +31,23 @@ export default function ConsolePage() {
   const [parentRunId, setParentRunId] = useState<string | null>(null);
   const [reviseLabel, setReviseLabel] = useState<string | null>(null);
 
+  const [apiOffline, setApiOffline] = useState(false);
+
   const loadAssets = useCallback(async () => {
     try {
       const data = await fetchAssets();
       setAssets(data);
+      setApiOffline(false);
     } catch {
-      /* API may be offline during first boot */
+      setApiOffline(true);
     }
   }, []);
 
   useEffect(() => {
     loadAssets();
+    // Retry while the backend boots so the banner clears without a manual reload
+    const id = setInterval(loadAssets, 5000);
+    return () => clearInterval(id);
   }, [loadAssets]);
 
   useEffect(() => {
@@ -119,6 +125,15 @@ export default function ConsolePage() {
       </header>
 
       <DemoIntroBanner />
+
+      {apiOffline && (
+        <div className="mb-8 flex items-center gap-3 rounded-[var(--radius-md)] border border-danger/40 bg-danger/[0.06] px-4 py-3">
+          <span className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-danger" />
+          <p className="text-sm text-danger">
+            API unreachable — start the backend (<span className="font-mono text-[12px]">uvicorn attest.main:app --port 8000</span>). Retrying…
+          </p>
+        </div>
+      )}
 
       <section className="card mb-8 p-6">
         <h2 className="font-display mb-4 text-base font-semibold text-ink">New generation</h2>

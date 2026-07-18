@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 import type { Asset } from "@/lib/api";
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
@@ -28,9 +31,21 @@ export function AssetCard({
   asset: Asset;
   onRevise?: (asset: Asset) => void;
 }) {
+  const [copied, setCopied] = useState(false);
   const verifyHref = asset.asset_url
     ? `/verify?asset=${encodeURIComponent(asset.asset_url)}&manifest=${encodeURIComponent(asset.manifest_url ?? "")}`
     : null;
+
+  const handleCopyLink = async () => {
+    if (!verifyHref) return;
+    try {
+      await navigator.clipboard.writeText(`${window.location.origin}${verifyHref}`);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    } catch {
+      /* clipboard unavailable */
+    }
+  };
 
   return (
     <div className="card group overflow-hidden p-0 transition hover:border-muted/40 hover:bg-surface-raised">
@@ -66,6 +81,15 @@ export function AssetCard({
           >
             Verify →
           </Link>
+        )}
+        {verifyHref && (
+          <button
+            type="button"
+            onClick={handleCopyLink}
+            className="text-xs font-semibold text-muted transition hover:text-ink"
+          >
+            {copied ? "Copied ✓" : "Copy verify link"}
+          </button>
         )}
         {onRevise && asset.run_id && asset.status === "compliant" && (
           <button
