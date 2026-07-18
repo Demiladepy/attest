@@ -10,8 +10,10 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, AsyncIterator, Callable, Awaitable
 
-from attest.compliance.sink import apply_compliance_to_manifest, get_signer, new_run_id
+from attest.compliance.sink import apply_compliance_to_manifest, new_run_id
 from attest.config import get_settings
+from attest.storage.local import MINIMAL_PNG
+from attest.storage.persist import persist_compliant_run
 
 
 @dataclass
@@ -88,9 +90,11 @@ async def run_demo_pipeline(
         event.status = "complete"
         await _emit(event, on_step)
 
-    # Synthetic asset hash from brief + run_id (deterministic for demo)
-    payload = f"{brief}:{run_id}".encode()
-    sha256 = hashlib.sha256(payload).hexdigest()
+    # Asset bytes (local dev: minimal PNG; production: Genblaze output)
+    asset_bytes = MINIMAL_PNG
+    import hashlib
+
+    sha256 = hashlib.sha256(asset_bytes).hexdigest()
 
     base_manifest: dict[str, Any] = {
         "run_id": run_id,
@@ -101,10 +105,10 @@ async def run_demo_pipeline(
         "pipeline": "attest-compliance-v1",
         "outputs": [
             {
-                "modality": "video",
+                "modality": "image",
                 "sha256": sha256,
-                "mime": "video/mp4",
-                "provider": "wan-gmi",
+                "mime": "image/png",
+                "provider": "flux-replicate",
             }
         ],
         "steps": [
@@ -144,9 +148,13 @@ async def run_demo_pipeline(
     )
 
     duration = (datetime.now(timezone.utc) - started).total_seconds()
-    base_url = settings.b2_public_url_base or "https://f004.backblazeb2.com/file/attest-demo"
-    asset_url = f"{base_url}/{settings.tenant_id}/{run_id}/output.mp4"
-    manifest_url = f"{base_url}/{settings.tenant_id}/{run_id}/manifest.json"
+    asset_url, manifest_url, sha256 = persist_compliant_run(
+        tenant_id=settings.tenant_id,
+        run_id=run_id,
+        manifest=manifest,
+        asset_bytes=asset_bytes,
+        asset_name="output.png",
+    )
 
     return PipelineResult(
         asset_id=asset_id,
@@ -166,34 +174,41 @@ async def run_genblaze_pipeline(
     asset_id: str,
     brief: str,
     parent_run_id: str | None = None,
+    lineage: list[dict[str, Any]] | None = None,
     on_step: StepCallback | None = None,
 ) -> PipelineResult:
-    """Run real Genblaze pipeline when providers + B2 are configured."""
+    """Run real provider pipeline when credentials are configured."""
     settings = get_settings()
-    storage = None
-    try:
-        from attest.compliance.sink import build_storage_sink
 
-        storage = build_storage_sink(settings)
-        if storage is None:
-            return await run_demo_pipeline(
-                asset_id=asset_id,
-                brief=brief,
-                parent_run_id=parent_run_id,
-                on_step=on_step,
-            )
+    from attest.pipeline.genblaze_gmi import is_configured as gmi_ready, run_gmi_pipeline
 
-        # Provider wiring ships in a follow-up once API keys are set.
-        # For now, fall back to demo when no provider keys detected.
-        return await run_demo_pipeline(
+    if gmi_ready(settings):
+        return await run_gmi_pipeline(
             asset_id=asset_id,
             brief=brief,
             parent_run_id=parent_run_id,
+            lineage=lineage,
             on_step=on_step,
         )
-    finally:
-        if storage is not None and hasattr(storage, "close"):
-            storage.close()
+
+    from attest.pipeline.genblaze_image import is_configured, run_flux_image_pipeline
+
+    if is_configured(settings):
+        return await run_flux_image_pipeline(
+            asset_id=asset_id,
+            brief=brief,
+            parent_run_id=parent_run_id,
+            lineage=lineage,
+            on_step=on_step,
+        )
+
+    return await run_demo_pipeline(
+        asset_id=asset_id,
+        brief=brief,
+        parent_run_id=parent_run_id,
+        lineage=lineage,
+        on_step=on_step,
+    )
 
 
 async def stream_pipeline(
@@ -221,32 +236,45 @@ async def stream_pipeline(
             }
         )
 
+    settings = get_settings()
+
     async def run() -> PipelineResult:
-        if get_settings().demo_mode:
-            return await run_demo_pipeline(
+        use_real = settings.gmi_pipeline_ready or (
+            not settings.demo_mode and settings.genblaze_image_ready
+        )
+        if use_real:
+            return await run_genblaze_pipeline(
                 asset_id=asset_id,
                 brief=brief,
                 parent_run_id=parent_run_id,
                 lineage=lineage,
                 on_step=collector,
             )
-        return await run_genblaze_pipeline(
+        return await run_demo_pipeline(
             asset_id=asset_id,
             brief=brief,
             parent_run_id=parent_run_id,
+            lineage=lineage,
             on_step=collector,
         )
 
     task = asyncio.create_task(run())
 
-    while not task.done() or not step_queue.empty():
-        try:
-            event = await asyncio.wait_for(step_queue.get(), timeout=0.05)
-            yield event
-        except asyncio.TimeoutError:
-            continue
+    try:
+        while not task.done() or not step_queue.empty():
+            try:
+                event = await asyncio.wait_for(step_queue.get(), timeout=0.05)
+                yield event
+            except asyncio.TimeoutError:
+                continue
 
-    result = await task
+        result = await task
+    except Exception as exc:
+        if not task.done():
+            task.cancel()
+        yield {"type": "error", "message": str(exc)}
+        return
+
     yield {
         "type": "complete",
         "result": {

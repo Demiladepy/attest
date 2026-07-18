@@ -1,5 +1,6 @@
 genblaze-core>=0.3.0
 genblaze-s3>=0.3.0
+genblaze-gmicloud>=0.3.2
 cryptography>=42.0.0
 fastapi>=0.115.0
 uvicorn[standard]>=0.32.0
@@ -8,9 +9,14 @@ httpx>=0.28.0
 python-multipart>=0.0.12
 sqlalchemy>=2.0.0
 aiosqlite>=0.20.0
+boto3>=1.35.0
+b2sdk>=2.5.0
+Pillow>=10.0.0
+pytest>=8.0.0
+pytest-asyncio>=0.24.0
 
-# Optional provider packs — install when API keys are configured
-# genblaze[all]
+# Optional provider packs
+# genblaze-replicate  # when REPLICATE_API_TOKEN configured
 
 # Compliance embeds (install when building full pipeline)
 # c2pa-python

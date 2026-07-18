@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: attest-api
+    runtime: docker
+    rootDir: backend
+    dockerfilePath: Dockerfile
+    healthCheckPath: /api/health
+    envVars:
+      - key: DEMO_MODE
+        value: "true"
+      - key: PYTHONUNBUFFERED
+        value: "1"
+    # Set in Render dashboard: ATTEST_SIGNING_KEY_HEX, ATTEST_VERIFY_KEY_HEX, API_PUBLIC_BASE_URL, CORS_ORIGINS

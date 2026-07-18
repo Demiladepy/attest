@@ -4,6 +4,13 @@
 
 Every AI-generated asset that leaves an enterprise pipeline ships with embedded C2PA provenance, cryptographic signature, invisible watermark, and a tamper-evident audit trail in Backblaze B2 — turning Article 50 from a €15M legal risk into a 3-second pipeline step.
 
+## Finish-first (hackathon)
+
+**Deadline Aug 3.** Daily autonomous build loop: [`docs/LOOP_STATE.md`](docs/LOOP_STATE.md).  
+Exams mode — operator actions only in [`docs/OPERATOR_15MIN.md`](docs/OPERATOR_15MIN.md).
+
+Winning bar: live Console + Verifier (pinned asset) + Genblaze Mode 2 PR + 3-min video + Devpost.
+
 ## PM
 
 **Claude** owns product scope, demo script, and rubric alignment. See [`docs/PM.md`](docs/PM.md).
@@ -38,7 +45,7 @@ Engineering implements against the PM brief. The [3-minute demo script](docs/DEM
 | `backend/` | FastAPI, ComplianceSink, Genblaze pipeline, audit API |
 | `frontend/` | Next.js — Compliance Console + Verifier |
 | `genblaze-pr/` | Mode 2 Ed25519 upstream PR — includes cloned `genblaze/` repo |
-| `docs/` | PM brief, demo script |
+| `docs/` | PM, demo script, `LOOP_STATE`, deploy, Devpost draft |
 
 ## Quick start
 

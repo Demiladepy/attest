@@ -1,6 +1,9 @@
 # Upstream clone (develop PR locally; do not commit full tree)
 genblaze-pr/genblaze/
 
+# Local persisted assets (dev without B2)
+backend/demo_assets/
+
 # Python
 backend/.venv/
 backend/__pycache__/

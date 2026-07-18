@@ -4,17 +4,22 @@ import json
 import uuid
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from attest.compliance.tamper import tamper_asset_url
 from attest.compliance.verify import verify_asset_url
 from attest.db import get_db
 from attest.models import AssetRecord, AuditLogEntry, AuditEventType, ComplianceStatus
 from attest.pipeline.runner import run_demo_pipeline, run_genblaze_pipeline
 from attest.services.audit import record_event
+from attest.services.lineage import build_lineage, mark_parent_rejected
+from attest.services.webhook_auth import verify_b2_webhook
 from attest.config import get_settings
+from attest.storage.b2_probe import b2_write_probe
+from attest.storage.urls import b2_config_warnings
 
 router = APIRouter(prefix="/api", tags=["api"])
 
@@ -59,9 +64,45 @@ class VerifyRequest(BaseModel):
     expected_sha256: str | None = None
 
 
+class TamperRequest(BaseModel):
+    asset_url: str
+    asset_id: str | None = None
+    run_id: str | None = None
+
+
+class TamperResponse(BaseModel):
+    original_url: str
+    tampered_url: str
+    original_sha256: str
+    tampered_sha256: str
+    method: str
+
+
 @router.get("/health")
-async def health() -> dict[str, str]:
-    return {"status": "ok", "service": "attest"}
+async def health() -> dict[str, object]:
+    settings = get_settings()
+    storage = "b2" if settings.b2_configured else "local"
+    b2_ok, b2_detail = b2_write_probe(settings) if settings.b2_configured else (False, "not_configured")
+    if settings.gmi_pipeline_ready:
+        pipeline = "gmi"
+    elif settings.genblaze_image_ready:
+        pipeline = "replicate"
+    else:
+        pipeline = "demo"
+    return {
+        "status": "ok",
+        "service": "attest",
+        "storage": storage,
+        "storage_proxy": settings.b2_configured and not bool(settings.b2_public_url_base),
+        "b2_write_ok": b2_ok,
+        "b2_write_detail": b2_detail,
+        "b2_api": "native",
+        "b2_region": settings.b2_region,
+        "warnings": b2_config_warnings(settings),
+        "pipeline": pipeline,
+        "gmi_configured": settings.gmi_configured,
+        "b2_configured": settings.b2_configured,
+    }
 
 
 @router.get("/assets", response_model=list[AssetOut])
@@ -91,20 +132,9 @@ async def generate_asset(body: GenerateRequest, db: AsyncSession = Depends(get_d
     db.add(record)
     await db.commit()
 
-    lineage: list[dict[str, Any]] = []
     if body.parent_run_id:
-        prior = await db.execute(
-            select(AssetRecord).where(AssetRecord.run_id == body.parent_run_id)
-        )
-        for p in prior.scalars().all():
-            lineage.append(
-                {
-                    "run_id": p.run_id,
-                    "parent_run_id": p.parent_run_id,
-                    "status": "rejected",
-                    "created_at": p.created_at.isoformat(),
-                }
-            )
+        await mark_parent_rejected(db, body.parent_run_id)
+    lineage = await build_lineage(db, body.parent_run_id)
 
     runner = run_demo_pipeline if settings.demo_mode else run_genblaze_pipeline
     result = await runner(
@@ -152,6 +182,39 @@ async def verify(body: VerifyRequest) -> dict[str, Any]:
     return result.to_dict()
 
 
+@router.post("/tamper", response_model=TamperResponse)
+async def tamper(body: TamperRequest, db: AsyncSession = Depends(get_db)) -> TamperResponse:
+    """Re-encode asset bytes — demo beat for verifier failure + audit event."""
+    settings = get_settings()
+    try:
+        result = await tamper_asset_url(body.asset_url)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    await record_event(
+        db,
+        tenant_id=settings.tenant_id,
+        event_type=AuditEventType.TAMPER_DETECTED,
+        asset_id=body.asset_id,
+        run_id=body.run_id,
+        detail=f"method={result.method} tampered_sha={result.tampered_sha256[:16]}",
+    )
+
+    if body.asset_id:
+        record = await db.get(AssetRecord, body.asset_id)
+        if record:
+            record.status = ComplianceStatus.TAMPERED
+    elif body.run_id:
+        rows = await db.execute(
+            select(AssetRecord).where(AssetRecord.run_id == body.run_id)
+        )
+        for record in rows.scalars().all():
+            record.status = ComplianceStatus.TAMPERED
+    await db.commit()
+
+    return TamperResponse(**result.__dict__)
+
+
 @router.get("/audit")
 async def audit_log(db: AsyncSession = Depends(get_db), limit: int = 50) -> list[dict[str, Any]]:
     settings = get_settings()
@@ -176,9 +239,15 @@ async def audit_log(db: AsyncSession = Depends(get_db), limit: int = 50) -> list
 
 
 @router.post("/webhooks/b2")
-async def b2_webhook(payload: dict[str, Any], db: AsyncSession = Depends(get_db)) -> dict[str, str]:
+async def b2_webhook(request: Request, db: AsyncSession = Depends(get_db)) -> dict[str, str]:
     """B2 Event Notifications → audit log row."""
     settings = get_settings()
+    body_bytes = await verify_b2_webhook(request, settings.b2_webhook_secret)
+    try:
+        payload = json.loads(body_bytes.decode("utf-8") or "{}")
+    except json.JSONDecodeError:
+        payload = {"raw": body_bytes.decode("utf-8", errors="replace")[:500]}
+
     event_name = payload.get("eventType") or payload.get("event_type") or "unknown"
     object_key = payload.get("objectKey") or payload.get("object_key") or ""
 

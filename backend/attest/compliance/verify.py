@@ -11,6 +11,7 @@ from typing import Any
 import httpx
 
 from attest.compliance.signing import SignatureBundle, signature_from_dict
+from attest.compliance.lineage import build_lineage_tree
 
 
 class CheckStatus(str, Enum):
@@ -34,6 +35,7 @@ class LineageNode:
     parent_run_id: str | None
     status: str
     created_at: str
+    depth: int = 0
 
 
 @dataclass
@@ -120,8 +122,13 @@ async def verify_asset_url(
 
     # Manifest
     resolved_manifest_url = manifest_url
-    if not resolved_manifest_url and asset_url.endswith(".mp4"):
-        resolved_manifest_url = asset_url.rsplit(".", 1)[0] + ".manifest.json"
+    if not resolved_manifest_url:
+        lower = asset_url.lower()
+        if lower.endswith(".png") or lower.endswith(".jpg") or lower.endswith(".jpeg"):
+            base = asset_url.rsplit("/", 1)[0]
+            resolved_manifest_url = f"{base}/manifest.json"
+        elif lower.endswith(".mp4"):
+            resolved_manifest_url = asset_url.rsplit(".", 1)[0] + ".manifest.json"
 
     if resolved_manifest_url:
         try:
@@ -209,12 +216,23 @@ async def verify_asset_url(
                 canonical_ok = hashlib.sha256(
                     json.dumps(core_manifest, sort_keys=True, separators=(",", ":")).encode()
                 ).hexdigest() == bundle.manifest_sha256
+
+                from attest.compliance.sink import get_trusted_public_key_hex
+
+                trusted = get_trusted_public_key_hex()
+                trusted_ok = not trusted or bundle.public_key_hex == trusted
+                sig_ok = canonical_ok and trusted_ok
+                detail = ""
+                if not canonical_ok:
+                    detail = "Manifest changed since signing"
+                elif not trusted_ok:
+                    detail = "Public key does not match ATTEST trusted key"
                 checks.append(
                     VerificationCheck(
                         id="ed25519",
                         label="Ed25519 signature",
-                        status=CheckStatus.PASS if canonical_ok else CheckStatus.FAIL,
-                        detail="" if canonical_ok else "Manifest changed since signing",
+                        status=CheckStatus.PASS if sig_ok else CheckStatus.FAIL,
+                        detail=detail,
                     )
                 )
             except Exception as exc:
@@ -279,25 +297,16 @@ async def verify_asset_url(
                 )
             )
 
-        # Lineage
-        for node in attest.get("lineage") or []:
+        # Lineage — ancestors (rejected) → current (approved)
+        for node in build_lineage_tree(manifest):
             lineage.append(
                 LineageNode(
                     run_id=node.get("run_id", ""),
                     parent_run_id=node.get("parent_run_id"),
                     status=node.get("status", "unknown"),
                     created_at=node.get("created_at", ""),
+                    depth=node.get("depth", 0),
                 )
-            )
-        if manifest.get("parent_run_id"):
-            lineage.insert(
-                0,
-                LineageNode(
-                    run_id=manifest.get("run_id", ""),
-                    parent_run_id=manifest.get("parent_run_id"),
-                    status="approved",
-                    created_at=manifest.get("created_at", ""),
-                ),
             )
 
     return VerificationResult(

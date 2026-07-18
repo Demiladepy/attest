@@ -29,7 +29,9 @@ export type VerificationResult = {
     parent_run_id: string | null;
     status: string;
     created_at: string;
+    depth?: number;
   }>;
+  manifest?: { run_id?: string } | null;
 };
 
 export async function fetchAssets(): Promise<Asset[]> {
@@ -76,6 +78,7 @@ export function streamGeneration(
   brief: string,
   title: string,
   onEvent: (event: Record<string, unknown>) => void,
+  parentRunId?: string | null,
 ): () => void {
   const controller = new AbortController();
   const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -84,7 +87,7 @@ export function streamGeneration(
     const res = await fetch(`${API}/api/assets/generate/stream`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ brief, title }),
+      body: JSON.stringify({ brief, title, parent_run_id: parentRunId ?? null }),
       signal: controller.signal,
     });
     if (!res.ok || !res.body) return;
@@ -112,4 +115,29 @@ export function streamGeneration(
   })();
 
   return () => controller.abort();
+}
+
+export type TamperResult = {
+  original_url: string;
+  tampered_url: string;
+  original_sha256: string;
+  tampered_sha256: string;
+  method: string;
+};
+
+export async function tamperAsset(
+  assetUrl: string,
+  assetId?: string,
+  runId?: string,
+): Promise<TamperResult> {
+  const res = await fetch(`${API_BASE}/api/tamper`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ asset_url: assetUrl, asset_id: assetId, run_id: runId }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as { detail?: string }).detail ?? "Tamper simulation failed");
+  }
+  return res.json();
 }

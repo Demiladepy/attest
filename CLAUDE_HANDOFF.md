@@ -16,12 +16,16 @@ Demilade Ayeku. Working solo. Stack preferences: Next.js + TypeScript frontend, 
 
 ## Current state (update this section at end of every session)
 
-**Last updated:** 2026-06-29
-**Current block:** Block 1 — Make one end-to-end path real
-**Last completed:** CLAUDE_HANDOFF.md added; stable Ed25519 keypair generated (Block 1 item 1)
-**Next item:** Wire ObjectStorageSink into one real Genblaze Pipeline (image, FLUX via Replicate)
-**Blockers:** B2 credentials not yet configured in `.env`
-**Known broken:** Demo URLs are still string-concatenated (runner.py L147–149); verifier 404s on generated URLs until B2 upload is wired
+**Last updated:** 2026-07-18
+**Current block:** Finish-first Tier 0 (deploy + pin + PR + video + Devpost)
+**Daily loop:** `docs/LOOP_STATE.md` — 24h wake `AGENT_LOOP_WAKE_attest_finish`. Operator exams; agent does A-queue only unless `allow_gmi_burn`.
+**Last completed:**
+- **A-queue complete (A1–A13).** `.env` fixed live: `B2_REGION=us-east-005`, `B2_PUBLIC_URL_BASE` cleared (had dup-key paste typo) → `pin_status` **zero warnings**, `storage_proxy: true`, `b2_write_ok: true` native, pytest 14 passed (2026-07-18)
+- `docs/DEPLOY_ENV_CHECKLIST.md` — paste-and-go env table for Railway + Vercel incl. `API_PUBLIC_BASE_URL` (not in local `.env`, defaults localhost — required in prod)
+- GMI live (`DeepSeek-V4-Pro` classify + seedream image); B2 native `b2sdk`; `/api/storage/…` proxy; lineage tree; tamper; deploy configs; all finish-first docs
+**Next item (agent):** none — all remaining work is B-queue (operator)
+**Next item (operator):** B3 deploy via `docs/DEPLOY_ENV_CHECKLIST.md` → then B2 hero pin on production → B4 PR → B5 video → B6 Devpost. Target: submit by Aug 1
+**Known broken / weak:** Object Lock disabled on bucket; no live domains; VERIFY_URL not production-pinned; SQLite is ephemeral on Railway redeploys (accepted — B2 holds assets/manifests)
 
 ## Non-negotiables — never violate these without operator approval
 
@@ -54,32 +58,35 @@ Demilade Ayeku. Working solo. Stack preferences: Next.js + TypeScript frontend, 
 
 ### Block 1: Make one end-to-end path real (June 30 – July 4)
 - [x] Stable Ed25519 keypair in `.env` + public key in `frontend/public/attest-pubkey.pem`
-- [ ] Replace `base_url + tenant_id + run_id` string concat with real durable URL from sink
-- [ ] Wire `ObjectStorageSink` into one real Genblaze Pipeline (image only, FLUX via Replicate)
-- [ ] Apply Object Lock programmatically on signed manifest upload
-- [ ] Generate one demo asset end-to-end, save B2 URL in `docs/DEMO_ASSETS.md`
-- [ ] Call `record_event()` from SSE path in `main.py` at every state transition
+- [x] Local dev: real fetchable URLs via `/assets/` static mount
+- [x] Call `record_event()` from SSE path in `main.py`
+- [x] Audit log UI on Console
+- [x] B2 durable URLs via `persist_compliant_run()` + API proxy for private buckets
+- [ ] Pin production VERIFY_URL in `docs/DEMO_ASSETS.md` (hero GMI + B2 after allow_gmi_burn)
 
 ### Block 2: Multi-step pipeline + tamper beat (July 5 – 11)
-- [ ] 4-step real pipeline: GMI classifier → FLUX → ElevenLabs → AssemblyAI
-- [ ] `tamper.py`: download → ffmpeg re-encode → re-upload
-- [ ] Verifier red state for tampered URL
-- [ ] Audit log UI panel on Console
-- [ ] TrustMark on image outputs
+- [x] GMI classifier + image path when `GMI_API_KEY` configured (`genblaze_gmi.py`)
+- [ ] ElevenLabs + AssemblyAI steps (stubs — deferred)
+- [x] Tamper simulation (local re-encode + API + verifier UI)
+- [x] Verifier red state for tampered URL
+- [x] Audit log UI panel on Console
+- [x] parent_run_id revise flow in Console
+- [x] Lineage tree in verifier UI
+- [ ] TrustMark on image outputs (deferred)
 
 ### Block 3: Upstream PR + deploy (July 12 – 18)
-- [ ] Fork genblaze, branch `feat/mode2-ed25519-signer`
-- [ ] Port signing.py into genblaze core
-- [ ] Open PR
-- [ ] Deploy backend + frontend
-- [ ] DNS for app.attest.io and verify.attest.io
-- [ ] B2 webhook signature validation
+- [x] Branch `feat/mode2-ed25519-signer` + signing module in genblaze clone
+- [x] PR body draft (`genblaze-pr/PR_BODY.md`)
+- [ ] Operator opens PR on GitHub
+- [x] Deploy configs (Docker/Railway/Render/Vercel) — see `docs/DEPLOY.md`
+- [ ] Live deploy at app.attest.io / verify.attest.io
+- [x] B2 webhook signature validation
 
 ### Block 4: Lineage + second asset + content (July 19 – 25)
-- [ ] parent_run_id end-to-end in Console
-- [ ] Lineage tree in verifier
-- [ ] One video demo asset
-- [ ] dev.to + LinkedIn posts published
+- [x] parent_run_id wired in Console UI (revise flow)
+- [x] Lineage tree visualization in verifier
+- [ ] One video demo asset (deferred — burn credits carefully)
+- [ ] dev.to + LinkedIn posts (optional)
 
 ### Block 5: Polish + submit (July 26 – Aug 2)
 - [ ] Record 3-minute demo
@@ -108,7 +115,7 @@ Demilade Ayeku. Working solo. Stack preferences: Next.js + TypeScript frontend, 
 ## Approved package additions
 
 - `trustmark` (Block 2)
-- `boto3`, `httpx`, `pytest`, `pytest-asyncio`
+- `boto3`, `b2sdk`, `httpx`, `pytest`, `pytest-asyncio`, `genblaze-gmicloud`, `Pillow`
 - Standard FastAPI / Next.js ecosystem packages
 
 ## Useful commands
@@ -117,6 +124,10 @@ Demilade Ayeku. Working solo. Stack preferences: Next.js + TypeScript frontend, 
 cd backend && .\.venv\Scripts\uvicorn attest.main:app --reload --port 8000
 cd frontend && npm run dev
 cd backend && .\.venv\Scripts\pytest
+docker compose up --build
+python -m attest.scripts.verify_url <url>
+python -m attest.scripts.tamper_cli <url>
+# Genblaze PR branch: cd genblaze-pr/genblaze && git log feat/mode2-ed25519-signer -1
 ```
 
 ## Open questions for the operator
