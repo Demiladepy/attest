@@ -115,7 +115,7 @@ export default function ConsolePage() {
     <div className="mx-auto max-w-6xl px-8 py-10">
       <header className="mb-10">
         <p className="label-caps text-muted">Compliance Console</p>
-        <h1 className="font-display mt-2 text-[1.75rem] font-semibold tracking-tight text-ink">
+        <h1 className="font-display mt-2 text-[2rem] font-light leading-tight tracking-[-0.02em] text-ink">
           EU Fintech — Media Compliance
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted">
@@ -136,7 +136,7 @@ export default function ConsolePage() {
       )}
 
       <section className="card mb-8 p-6">
-        <h2 className="font-display mb-4 text-base font-semibold text-ink">New generation</h2>
+        <h2 className="font-display mb-4 text-base font-medium text-ink">New generation</h2>
         {reviseLabel && (
           <p className="mb-3 rounded-[var(--radius-sm)] border border-warning/30 bg-warning/8 px-3 py-2 font-mono text-xs text-warning">
             Revising — parent_run_id: {reviseLabel}…{" "}
@@ -175,7 +175,7 @@ export default function ConsolePage() {
 
       <div className="grid gap-8 lg:grid-cols-[1fr_300px]">
         <section>
-          <h2 className="font-display mb-4 text-base font-semibold text-ink">Assets</h2>
+          <h2 className="font-display mb-4 text-base font-medium text-ink">Assets</h2>
           {assets.length === 0 ? (
             <p className="rounded-[var(--radius-lg)] border border-dashed border-border py-14 text-center text-sm text-muted">
               No assets yet. Start the backend and click Generate.

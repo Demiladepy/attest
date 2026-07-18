@@ -43,9 +43,9 @@ export function PipelineVisualizer({
               <div
                 className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
                   isDone
-                    ? "bg-success/15 text-success"
+                    ? "bg-success/10 text-success"
                     : isActive
-                      ? "bg-accent/20 text-accent"
+                      ? "bg-ink text-on-accent"
                       : "bg-surface-raised text-muted"
                 }`}
               >

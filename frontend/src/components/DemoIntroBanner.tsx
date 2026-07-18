@@ -44,41 +44,41 @@ export function DemoIntroBanner() {
         : "Demo mode";
 
   return (
-    <div className="mb-8 overflow-hidden rounded-[var(--radius-lg)] border border-accent/25 bg-accent/[0.06]">
+    <div className="mb-8 overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface">
       <div className="flex flex-wrap items-center justify-between gap-4 px-5 py-4">
         <div>
-          <p className="label-caps text-accent-dim">Backblaze Genblaze Hackathon</p>
+          <p className="label-caps text-muted">Backblaze Genblaze Hackathon</p>
           <p className="mt-1 text-sm text-ink/90">
             Generate → sign → verify → tamper. Pipeline powered by GMI Cloud + FLUX when keys are set.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-[var(--radius-sm)] border border-border bg-void px-3 py-1.5 font-mono text-xs text-ink">
+          <span className="rounded-full border border-border bg-void px-3 py-1.5 font-mono text-xs text-ink">
             {days}d <span className="text-muted">to submit</span>
           </span>
           <span
-            className={`rounded-[var(--radius-sm)] border px-3 py-1.5 text-xs font-medium ${
+            className={`rounded-full border px-3 py-1.5 text-xs font-medium ${
               storage === "b2" && b2WriteOk === false
                 ? "border-danger/30 bg-danger/10 text-danger"
                 : storage === "b2"
-                  ? "border-success/30 bg-success/10 text-success"
+                  ? "border-success/30 bg-success/[0.06] text-success"
                   : storage === "local"
-                    ? "border-accent/30 bg-accent/10 text-accent"
+                    ? "border-ink/20 bg-ink/[0.05] text-ink"
                     : "border-border bg-surface text-muted"
             }`}
           >
             {storageLabel}
           </span>
           <span
-            className={`rounded-[var(--radius-sm)] border px-3 py-1.5 text-xs font-medium ${
+            className={`rounded-full border px-3 py-1.5 text-xs font-medium ${
               pipeline === "gmi"
-                ? "border-accent/30 bg-accent/10 text-accent"
+                ? "border-ink/20 bg-ink/[0.05] text-ink"
                 : "border-border bg-void text-muted"
             }`}
           >
             {pipelineLabel}
           </span>
-          <span className="rounded-[var(--radius-sm)] border border-border bg-void px-3 py-1.5 text-xs text-muted">
+          <span className="rounded-full border border-border bg-void px-3 py-1.5 text-xs text-muted">
             GMI credits <span className="font-mono text-ink">$5</span>
           </span>
         </div>

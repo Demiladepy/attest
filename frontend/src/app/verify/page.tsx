@@ -177,7 +177,7 @@ function VerifyForm() {
                 >
                   {result.overall === "pass" ? "✓" : result.overall === "fail" ? "✗" : "!"}
                 </span>
-                <h2 className="font-display text-2xl font-semibold tracking-tight">
+                <h2 className="font-display text-2xl font-medium tracking-[-0.02em]">
                   {verdict.title}
                 </h2>
               </div>
@@ -281,7 +281,7 @@ export default function VerifyPage() {
     <div className="mx-auto max-w-2xl px-8 py-10">
       <header className="mb-10">
         <p className="label-caps text-muted">Public verifier</p>
-        <h1 className="font-display mt-2 text-[1.75rem] font-semibold tracking-tight text-ink">
+        <h1 className="font-display mt-2 text-[2rem] font-light leading-tight tracking-[-0.02em] text-ink">
           verify.attest.io
         </h1>
         <p className="mt-3 text-sm leading-relaxed text-muted">

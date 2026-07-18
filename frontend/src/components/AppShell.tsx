@@ -25,31 +25,27 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         style={{ width: "var(--sidebar-w)" }}
       >
         <div className="flex h-14 items-center gap-2.5 border-b border-border px-5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] bg-accent font-display text-sm font-bold text-on-accent">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-ink font-display text-[13px] font-semibold text-on-accent">
             A
           </div>
-          <span className="font-display text-base font-semibold tracking-tight text-ink">ATTEST</span>
+          <span className="font-display text-[15px] font-medium tracking-tight text-ink">ATTEST</span>
         </div>
 
-        <nav className="flex-1 space-y-1 p-3">
+        <nav className="flex-1 space-y-0.5 p-3">
           {NAV.map((item) => {
             const active = pathname === item.href;
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`block rounded-[var(--radius-sm)] px-3 py-2.5 transition ${
+                className={`block rounded-[var(--radius-md)] px-3 py-2.5 transition ${
                   active
-                    ? "bg-accent text-on-accent"
-                    : "text-muted hover:bg-surface-raised hover:text-ink"
+                    ? "bg-surface-raised text-ink"
+                    : "text-muted hover:bg-surface-raised/60 hover:text-ink"
                 }`}
               >
-                <span className="block text-sm font-semibold">{item.label}</span>
-                <span
-                  className={`block text-[11px] ${active ? "text-on-accent/70" : "text-muted/80"}`}
-                >
-                  {item.desc}
-                </span>
+                <span className="block text-sm font-medium">{item.label}</span>
+                <span className="block text-[11px] text-muted/80">{item.desc}</span>
               </Link>
             );
           })}

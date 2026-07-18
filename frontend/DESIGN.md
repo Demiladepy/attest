@@ -1,4 +1,6 @@
 ---
+
+> **2026-07-18 reskin:** tokens now follow the ElevenLabs-style light system — `#fdfcfc` ground, white cards, `#e5e5e5` hairlines, black-as-accent, Inter, pill buttons. Palette details below describe the original dark system and are superseded by `globals.css`.
 version: alpha
 name: ATTEST Command
 description: Regulatory command center for EU AI Act Article 50 media compliance
