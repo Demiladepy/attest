@@ -3,6 +3,7 @@
 from attest.storage.urls import (
     b2_config_warnings,
     parse_storage_proxy_url,
+    safe_object_segments,
     storage_proxy_url,
     use_storage_proxy,
 )
@@ -50,3 +51,20 @@ def test_b2_config_warnings_prefer_empty_public_base():
 
 def test_b2_config_warnings_clean_when_proxy():
     assert b2_config_warnings(_Settings()) == []
+
+
+def test_safe_object_segments_accepts_normal_paths():
+    assert safe_object_segments("demo-workspace", "run-abc", "output.png")
+    assert safe_object_segments("demo-workspace", "run-abc", "nested/manifest.json")
+
+
+def test_safe_object_segments_rejects_traversal():
+    assert not safe_object_segments("demo-workspace", "..", "output.png")
+    assert not safe_object_segments("demo-workspace", "run", "../../.env")
+    assert not safe_object_segments("demo-workspace", "run", "..")
+    assert not safe_object_segments("demo-workspace", "run", "a/../../b")
+    assert not safe_object_segments("demo-workspace", "run", "sub\\..\\..\\x")
+    assert not safe_object_segments("demo-workspace", "run", "/abs/path")
+    assert not safe_object_segments("demo-workspace", "run", "")
+    assert not safe_object_segments("demo-workspace", "run", "a//b")
+    assert not safe_object_segments("demo-workspace", "run", "nul\x00.png")

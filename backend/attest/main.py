@@ -47,16 +47,15 @@ def create_app() -> FastAPI:
     demo_assets = assets_root(settings)
     app.mount("/assets", StaticFiles(directory=str(demo_assets)), name="assets")
 
+    from pydantic import BaseModel, Field
+
+    class StreamGenerateRequest(BaseModel):
+        brief: str = Field(..., min_length=10, max_length=4000)
+        title: str = "Untitled generation"
+        parent_run_id: str | None = None
+
     @app.post("/api/assets/generate/stream")
-    async def generate_stream(body: dict):
-        from pydantic import BaseModel, Field
-
-        class Req(BaseModel):
-            brief: str = Field(..., min_length=10)
-            title: str = "Untitled generation"
-            parent_run_id: str | None = None
-
-        req = Req(**body)
+    async def generate_stream(req: StreamGenerateRequest):
         asset_id = str(uuid.uuid4())
         factory = get_session_factory()
         run_id_holder: list[str | None] = [None]

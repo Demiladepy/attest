@@ -40,6 +40,17 @@ def test_enriched_manifest_verifies_when_base_has_attest_stub():
     assert enriched["attest"]["transcript"]["provider"] == "assemblyai"
 
 
+def test_local_path_from_url_rejects_traversal():
+    from attest.compliance.tamper import _local_path_from_url
+
+    class _S:
+        pass
+
+    # ../ escape from demo_assets (would resolve to backend/.env etc.) must map to None
+    assert _local_path_from_url("http://localhost:8000/assets/../.env", _S()) is None
+    assert _local_path_from_url("http://localhost:8000/assets/t/../../attest.db", _S()) is None
+
+
 def test_reencode_changes_hash():
     tampered, method = reencode_bytes(MINIMAL_PNG, ".png")
     assert tampered != MINIMAL_PNG

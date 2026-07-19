@@ -10,7 +10,7 @@ from fastapi.responses import Response
 from attest.config import get_settings
 from attest.storage.b2 import fetch_object
 from attest.storage.local import assets_root
-from attest.storage.urls import object_key
+from attest.storage.urls import object_key, safe_object_segments
 
 router = APIRouter(prefix="/api/storage", tags=["storage"])
 
@@ -33,6 +33,8 @@ async def serve_storage_object(tenant_id: str, run_id: str, filename: str) -> Re
     settings = get_settings()
     if tenant_id != settings.tenant_id:
         raise HTTPException(status_code=404, detail="Not found")
+    if not safe_object_segments(tenant_id, run_id, filename):
+        raise HTTPException(status_code=404, detail="Not found")
 
     key = object_key(tenant_id, run_id, filename)
 
@@ -43,7 +45,10 @@ async def serve_storage_object(tenant_id: str, run_id: str, filename: str) -> Re
         except Exception:
             pass
 
-    local_path = assets_root(settings) / tenant_id / run_id / filename
+    root = assets_root(settings).resolve()
+    local_path = (root / tenant_id / run_id / filename).resolve()
+    if not local_path.is_relative_to(root):
+        raise HTTPException(status_code=404, detail="Not found")
     if local_path.is_file():
         return Response(
             content=local_path.read_bytes(),

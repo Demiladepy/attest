@@ -41,6 +41,7 @@ export function AuditLogPanel({ refreshKey }: { refreshKey: number }) {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- async fetch-on-mount; state updates occur after await
     load();
   }, [load, refreshKey]);
 

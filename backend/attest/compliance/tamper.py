@@ -37,8 +37,12 @@ def _local_path_from_url(asset_url: str, settings: Settings | None = None) -> Pa
     if not path.startswith(prefix):
         return None
     rel = path[len(prefix) :]
-    root = Path(__file__).resolve().parents[2] / "demo_assets" / rel
-    return root if root.exists() else None
+    root = (Path(__file__).resolve().parents[2] / "demo_assets").resolve()
+    candidate = (root / rel).resolve()
+    # Containment: URL-supplied path must stay inside demo_assets
+    if not candidate.is_relative_to(root):
+        return None
+    return candidate if candidate.exists() else None
 
 
 def _reencode_png_pillow(data: bytes) -> bytes:
@@ -109,7 +113,16 @@ async def tamper_asset_url(asset_url: str, settings: Settings | None = None) -> 
     Supports /assets/… (local) and /api/storage/… (B2 proxy).
     """
     settings = settings or get_settings()
-    original = await fetch_asset_bytes(asset_url, settings)
+    proxy_target = parse_storage_proxy_url(asset_url)
+    if proxy_target and proxy_target[0] != settings.tenant_id:
+        raise ValueError("Tamper demo is scoped to the configured workspace.")
+
+    try:
+        original = await fetch_asset_bytes(asset_url, settings)
+    except ValueError:
+        raise
+    except Exception as exc:
+        raise ValueError(f"Could not fetch asset: {exc}") from exc
     original_sha = hashlib.sha256(original).hexdigest()
 
     suffix = Path(urlparse(asset_url).path).suffix or ".png"
@@ -127,6 +140,8 @@ async def tamper_asset_url(asset_url: str, settings: Settings | None = None) -> 
         proxy = parse_storage_proxy_url(asset_url)
         if proxy and settings.b2_configured:
             tenant_id, run_id, filename = proxy
+            if tenant_id != settings.tenant_id:
+                raise ValueError("Tamper demo is scoped to the configured workspace.")
             stem = Path(filename).stem
             ext = Path(filename).suffix or ".png"
             tampered_name = f"{stem}-tampered{ext}"

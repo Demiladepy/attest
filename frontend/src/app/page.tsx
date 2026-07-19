@@ -44,6 +44,7 @@ export default function ConsolePage() {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- async fetch-on-mount; state updates occur after await
     loadAssets();
     // Retry while the backend boots so the banner clears without a manual reload
     const id = setInterval(loadAssets, 5000);

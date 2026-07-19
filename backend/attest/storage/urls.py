@@ -46,6 +46,18 @@ def b2_config_warnings(settings: Settings | None = None) -> list[str]:
     return warnings
 
 
+def safe_object_segments(tenant_id: str, run_id: str, filename: str) -> bool:
+    """True when URL-supplied object path segments cannot escape their prefix.
+
+    Rejects empty, dot/dot-dot, backslashes, NUL, and absolute components.
+    filename may contain forward slashes; each component is checked."""
+    flat = [tenant_id, run_id, *filename.split("/")]
+    for part in flat:
+        if not part or part in (".", "..") or "\\" in part or "\x00" in part:
+            return False
+    return not filename.startswith("/")
+
+
 def object_key(tenant_id: str, run_id: str, filename: str) -> str:
     return f"{tenant_id}/{run_id}/{filename}"
 
