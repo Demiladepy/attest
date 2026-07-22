@@ -1,6 +1,7 @@
-genblaze-core>=0.3.0
-genblaze-s3>=0.3.0
-genblaze-gmicloud>=0.3.2
+# v0.6.0 release line — Windows file:// URLs, B2 Class-B-cap resilience, dep caps
+genblaze-core>=0.3.7
+genblaze-s3>=0.3.6
+genblaze-gmicloud>=0.3.4
 cryptography>=42.0.0
 fastapi>=0.115.0
 uvicorn[standard]>=0.32.0

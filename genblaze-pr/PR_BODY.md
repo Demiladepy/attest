@@ -6,11 +6,15 @@ Implements **Trust Mode 2 — Authenticated integrity** from [`docs/features/tru
 
 Adds optional Ed25519 signing via `genblaze_core.signing`, behind the `signing` extra (`cryptography`).
 
-Reference consumer: [ATTEST](https://github.com/backblaze-labs/genblaze) — EU AI Act Article 50 compliance gateway built on Genblaze + B2.
+Reference consumer: [ATTEST](https://github.com/Demiladepy/attest) — EU AI Act Article 50 compliance gateway built on Genblaze + B2.
 
 ## Motivation
 
 Mode 1 proves integrity but not authorship. Article 50 and enterprise compliance buyers need manifests only a trusted pipeline key could produce. The `Manifest.signature` field was reserved for this; this PR fills it.
+
+## Complements v0.6.0 `verify --fetch`
+
+v0.6.0 added byte-level output verification (`genblaze verify --fetch` re-hashes each asset against the manifest's committed `sha256`). That proves an asset's **bytes are unmodified**; Mode 2 proves the manifest was **authored by a trusted key**. Together they close the full chain — *this pipeline produced it* **and** *nothing changed since* — which is exactly the provenance guarantee Article 50 transparency obligations call for. Rebases cleanly onto `main` at the 0.6.0 wave (`ce65121`); the `signing/` module is purely additive.
 
 ## API
 

@@ -3,9 +3,10 @@
 > Agent reads this first every tick. Operator exams take priority; loops must not ask for long attention.
 
 **Started:** 2026-07-13  
-**Deadline:** 2026-08-03  
+**Submission target:** 2026-07-31 (hard deadline 2026-08-03 — 2-day safety buffer)  
 **Cadence:** ~24h dynamic wake (`AGENT_LOOP_WAKE_attest_finish`)  
-**Strategy:** Tier 0 only until three judge URLs + demo video + Devpost are done. Cut Tier 2.
+**Strategy:** Tier 0 only until three judge URLs + demo video + Devpost are done. Cut Tier 2.  
+**Code status (2026-07-22):** All agent-buildable work complete. genblaze upgraded to 0.6.0 line, 23 tests green, CI green, Mode 2 PR branch verified clean-merge onto upstream. Remaining work is 100% operator (deploy + pin + PR + video + submit).
 
 ## Goal (winning definition)
 
