@@ -26,7 +26,7 @@ Private B2 buckets vs judge-pasteable URLs → API storage proxy. Master Applica
 
 ## Accomplishments
 
-End-to-end generate → sign → verify → tamper on real GMI output. Mode 2 signing branch for Genblaze. Deploy configs for Vercel + Railway.
+End-to-end generate → sign → verify → tamper on real GMI output. Mode 2 signing branch for Genblaze. Deploy configs for Vercel + Railway. Security-audited storage proxy (path-traversal guards, tenant scoping — endpoint-tested). Provider failsafe: a GMI outage mid-generation falls back to the simulated pipeline with a visible step, so a live demo can't die. 23-test suite + CI (pytest, lint, production build) on every push. ElevenLabs-grade minimal UI.
 
 ## What’s next
 

@@ -34,10 +34,18 @@ def main() -> None:
     async def _run() -> None:
         print("\nRunning full GMI pipeline (may take 1–3 min)…")
         out = await run_gmi_pipeline(asset_id=str(uuid.uuid4()), brief=args.brief)
+
+        from attest.services.register import register_pipeline_result
+
+        await register_pipeline_result(out, brief=args.brief, title="Hero asset (GMI)")
+
+        print("Registered in Console DB.")
         print(f"RUN_ID={out.run_id}")
         print(f"ASSET_URL={out.asset_url}")
         print(f"MANIFEST_URL={out.manifest_url}")
         print(f"SHA256={out.sha256}")
+        print("\nVerifier deep link:")
+        print(f"http://localhost:3000/verify?asset={out.asset_url}&manifest={out.manifest_url}")
 
     asyncio.run(_run())
 

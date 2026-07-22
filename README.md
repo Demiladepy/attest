@@ -1,8 +1,24 @@
 # ATTEST
 
+[![CI](https://github.com/Demiladepy/attest/actions/workflows/ci.yml/badge.svg)](https://github.com/Demiladepy/attest/actions/workflows/ci.yml)
+
 **Compliance-grade AI media gateway for the EU AI Act era.**
 
 Every AI-generated asset that leaves an enterprise pipeline ships with embedded C2PA provenance, cryptographic signature, invisible watermark, and a tamper-evident audit trail in Backblaze B2 — turning Article 50 from a €15M legal risk into a 3-second pipeline step.
+
+## 60-second proof (judges)
+
+1. Open the **Verifier** with a pinned asset URL (see `docs/DEMO_ASSETS.md`) — every check goes green: SHA-256, Ed25519 signature, C2PA claim, watermark, lineage.
+2. Click **Simulate tamper** — the asset is re-encoded, re-verified, and the verdict flips to a red **Tamper detected**: hash mismatch against the signed manifest, byte-for-byte.
+3. Every event (generate, sign, tamper) lands in the **audit log**, and every binary + manifest is durably stored in **Backblaze B2** behind a traversal-guarded proxy.
+
+## Engineering highlights
+
+- **Ed25519 canonical manifest signing** (Genblaze Mode 2 candidate — upstream PR in `genblaze-pr/`), verified independently by a public verifier that re-hashes the canonical manifest.
+- **Native B2 storage** (`b2sdk`) with private-bucket API proxy, tenant scoping, and path-traversal guards (tested at the endpoint level).
+- **Revision lineage**: reject-and-retry flow links runs via `parent_run_id`; the verifier renders the full ancestry tree.
+- **Provider failsafe**: a GMI Cloud outage mid-generation falls back to the simulated pipeline with a visible pipeline step — a live demo can never die.
+- **CI on every push**: 23 backend tests + frontend lint + production build.
 
 ## Finish-first (hackathon)
 

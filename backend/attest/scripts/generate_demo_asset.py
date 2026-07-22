@@ -22,7 +22,11 @@ async def _main() -> None:
     asset_id = str(uuid.uuid4())
     result = await run_demo_pipeline(asset_id=asset_id, brief=args.brief)
 
-    print("Demo asset ready:\n")
+    from attest.services.register import register_pipeline_result
+
+    await register_pipeline_result(result, brief=args.brief, title="Demo asset (scripted)")
+
+    print("Demo asset ready (registered in Console DB):\n")
     print(f"ASSET_URL={result.asset_url}")
     print(f"MANIFEST_URL={result.manifest_url}")
     print(f"SHA256={result.sha256}")

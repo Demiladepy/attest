@@ -183,13 +183,35 @@ async def run_genblaze_pipeline(
     from attest.pipeline.genblaze_gmi import is_configured as gmi_ready, run_gmi_pipeline
 
     if gmi_ready(settings):
-        return await run_gmi_pipeline(
-            asset_id=asset_id,
-            brief=brief,
-            parent_run_id=parent_run_id,
-            lineage=lineage,
-            on_step=on_step,
-        )
+        try:
+            return await run_gmi_pipeline(
+                asset_id=asset_id,
+                brief=brief,
+                parent_run_id=parent_run_id,
+                lineage=lineage,
+                on_step=on_step,
+            )
+        except Exception as exc:
+            # Demo failsafe: a provider outage must not kill a live generation.
+            # Surface the fallback as a visible step, then complete via the
+            # simulated pipeline (manifest honestly reports its own pipeline id).
+            await _emit(
+                PipelineStepEvent(
+                    step_id="provider-fallback",
+                    label="GMI unavailable — simulated fallback",
+                    provider="ATTEST failsafe",
+                    status="complete",
+                    detail=str(exc)[:120],
+                ),
+                on_step,
+            )
+            return await run_demo_pipeline(
+                asset_id=asset_id,
+                brief=brief,
+                parent_run_id=parent_run_id,
+                lineage=lineage,
+                on_step=on_step,
+            )
 
     from attest.pipeline.genblaze_image import is_configured, run_flux_image_pipeline
 
