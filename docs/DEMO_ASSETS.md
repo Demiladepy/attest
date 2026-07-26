@@ -15,12 +15,15 @@ Judge-pasteable URLs for Devpost. **Only pin production or stable API URLs here.
 ## Pin for Devpost (fill these)
 
 ```
-CONSOLE_URL=
-VERIFY_URL=
-API_HEALTH=
-GENBLAZE_PR=
+CONSOLE_URL=https://attest-black-two.vercel.app        # LIVE (Vercel prod, 2026-07-22)
+VERIFY_URL=                                            # fill after hero pin on live backend
+API_HEALTH=                                            # fill after OpenShip backend deploy
+GENBLAZE_PR=                                           # operator opens (branch verified clean-merge)
 DEMO_VIDEO=
 ```
+
+> Frontend live at CONSOLE_URL but shows "API unreachable" until the OpenShip backend
+> is deployed and `NEXT_PUBLIC_API_URL` is set + redeployed. See `DEPLOY_OPENSHIP.md`.
 
 ### VERIFY_URL shape (private B2 + proxy)
 

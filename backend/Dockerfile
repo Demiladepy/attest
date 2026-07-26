@@ -14,4 +14,6 @@ COPY attest ./attest
 ENV PYTHONUNBUFFERED=1
 EXPOSE 8000
 
-CMD ["uvicorn", "attest.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Shell form so an injected $PORT (OpenShip / Railway / Render / Fly) is honored,
+# defaulting to 8000 for local `docker run`.
+CMD ["sh", "-c", "uvicorn attest.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

@@ -11,8 +11,9 @@
 | Frontend | ✅ Done. ElevenLabs-style redesign, verify/tamper/lineage all live, lint+build clean |
 | Repo | ✅ Pushed to github.com/Demiladepy/attest, CI on every push |
 | Mode 2 PR branch | ✅ Verified clean-merge onto upstream 0.6.0; PR body ready |
-| **Live deploy** | ⛔ Operator — not started |
-| **Hero pin** | ⛔ Operator — needs deploy + `allow_gmi_burn` |
+| **Frontend deploy** | ✅ Live — https://attest-black-two.vercel.app (Vercel prod, public) |
+| **Backend deploy** | ⛔ Operator — needs an OpenShip instance first (see `DEPLOY_OPENSHIP.md`) |
+| **Hero pin** | ⛔ Operator — needs backend live + `allow_gmi_burn` |
 | **Genblaze PR opened** | ⛔ Operator — branch + body ready |
 | **Demo video** | ⛔ Operator — needs live URLs |
 | **Devpost** | ⛔ Operator — draft ready |
@@ -27,11 +28,17 @@ deploy backend+frontend ──▶ hero pin on prod ──▶ record video ──
 
 ## Day-by-day plan
 
-### Jul 22–23 — Deploy (90 min)
-Follow [`DEPLOY_ENV_CHECKLIST.md`](DEPLOY_ENV_CHECKLIST.md). Railway backend → Vercel frontend → cross-wire URLs → redeploy.
-- [ ] Backend live, `curl <api>/api/health` → `b2_write_ok:true`, `pipeline:gmi`, `warnings:[]`
-- [ ] Frontend live, Console loads with no CORS errors
-- [ ] `DEBUG=false` in Railway (local `.env` has it true)
+### Jul 22 — Frontend deploy ✅ DONE
+- [x] Vercel prod live: https://attest-black-two.vercel.app (public, both routes 200)
+- [ ] Set `NEXT_PUBLIC_API_URL` + redeploy **after** backend is live (one command, see below)
+
+### Jul 22–24 — Backend deploy (OpenShip)
+Follow [`DEPLOY_OPENSHIP.md`](DEPLOY_OPENSHIP.md). **Blocked on provisioning an OpenShip instance** (VPS + OpenShip installed). Once it exists:
+- [ ] App from `github.com/Demiladepy/attest`, root `backend/`, Docker build
+- [ ] Env + secrets set (matrix in DEPLOY_OPENSHIP.md), `DEBUG=false`
+- [ ] Health check `/api/health` → `b2_write_ok:true`, `pipeline:gmi`, `warnings:[]`
+- [ ] `vercel env add NEXT_PUBLIC_API_URL production` (paste backend URL) → `vercel --prod`
+- [ ] Console loads with no "API unreachable" banner, no CORS errors
 
 ### Jul 24 — Hero pin (30 min)
 - [ ] Set `allow_gmi_burn: true` in `LOOP_STATE.md`
