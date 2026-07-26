@@ -1,13 +1,44 @@
+# Render Blueprint — one-shot backend deploy.
+# Dashboard: New + → Blueprint → connect Demiladepy/attest → Render reads this file.
+# Non-secret config is baked in; `sync: false` vars are prompted for at deploy
+# (never committed to git). Free plan, Docker, health-checked.
 services:
   - type: web
     name: attest-api
     runtime: docker
+    plan: free
     rootDir: backend
-    dockerfilePath: Dockerfile
+    dockerfilePath: ./Dockerfile
     healthCheckPath: /api/health
+    autoDeploy: true
     envVars:
+      # ── Non-secret config ──────────────────────────────
       - key: DEMO_MODE
         value: "true"
+      - key: DEBUG
+        value: "false"
       - key: PYTHONUNBUFFERED
         value: "1"
-    # Set in Render dashboard: ATTEST_SIGNING_KEY_HEX, ATTEST_VERIFY_KEY_HEX, API_PUBLIC_BASE_URL, CORS_ORIGINS
+      - key: TENANT_ID
+        value: demo-workspace
+      - key: B2_REGION
+        value: us-east-005
+      - key: B2_BUCKET
+        value: attest-dma-2026
+      - key: CORS_ORIGINS
+        value: https://attest-black-two.vercel.app
+      # ── Prompted at deploy (paste in Render UI) ─────────
+      # Set to the Render URL after the first deploy, then redeploy:
+      - key: API_PUBLIC_BASE_URL
+        sync: false
+      # Secrets — copy values from local backend/.env:
+      - key: B2_KEY_ID
+        sync: false
+      - key: B2_APPLICATION_KEY
+        sync: false
+      - key: ATTEST_SIGNING_KEY_HEX
+        sync: false
+      - key: ATTEST_VERIFY_KEY_HEX
+        sync: false
+      - key: GMI_API_KEY
+        sync: false
