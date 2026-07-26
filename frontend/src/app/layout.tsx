@@ -15,9 +15,41 @@ const jetbrains = JetBrains_Mono({
   weight: ["400", "500"],
 });
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://attest-black-two.vercel.app";
+
 export const metadata: Metadata = {
-  title: "ATTEST — Compliance Console",
-  description: "Article 50 compliance-grade AI media gateway",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "ATTEST — Provenance for the AI-media era",
+    template: "%s — ATTEST",
+  },
+  description:
+    "Compliance-grade AI media gateway. Every asset ships with an Ed25519 signature, C2PA-candidate manifest, invisible watermark, and tamper-evident audit trail in Backblaze B2. EU AI Act Article 50 in one pipeline step.",
+  applicationName: "ATTEST",
+  keywords: [
+    "EU AI Act",
+    "Article 50",
+    "AI provenance",
+    "C2PA",
+    "Ed25519",
+    "content authenticity",
+    "Backblaze B2",
+    "Genblaze",
+  ],
+  openGraph: {
+    type: "website",
+    siteName: "ATTEST",
+    title: "ATTEST — Provenance for the AI-media era",
+    description:
+      "Cryptographic signature, tamper-evident storage, and a public verifier for every AI-generated asset.",
+    url: SITE_URL,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ATTEST — Provenance for the AI-media era",
+    description:
+      "Cryptographic signature, tamper-evident storage, and a public verifier for every AI-generated asset.",
+  },
 };
 
 export default function RootLayout({

@@ -130,7 +130,7 @@ function VerifyForm() {
 
   return (
     <>
-      <div className="card mb-8 p-6">
+      <div className="card no-print mb-8 p-6">
         <label className="label-caps mb-2 block text-muted">Asset URL</label>
         <input
           type="url"
@@ -168,7 +168,18 @@ function VerifyForm() {
       </div>
 
       {result && verdict && (
-        <div className={`animate-fade-up rounded-[var(--radius-lg)] border p-6 ${verdict.frame}`}>
+        <div className={`print-cert animate-fade-up rounded-[var(--radius-lg)] border p-6 ${verdict.frame}`}>
+          {/* Print-only certificate header */}
+          <div className="mb-6 hidden items-center justify-between border-b border-border pb-4 print:flex">
+            <div className="flex items-center gap-2.5">
+              <Seal size={30} className="text-ink" />
+              <span className="font-display text-lg font-semibold tracking-tight text-ink">ATTEST</span>
+            </div>
+            <span className="font-mono text-[11px] text-muted">
+              Issued {new Date().toUTCString()}
+            </span>
+          </div>
+
           {/* Verdict banner */}
           <div className="mb-6 flex items-start justify-between gap-4">
             <div>
@@ -191,13 +202,24 @@ function VerifyForm() {
               </div>
               <p className="mt-2 max-w-lg text-sm leading-relaxed text-muted">{verdict.sub}</p>
             </div>
-            <button
-              type="button"
-              onClick={handleCopyLink}
-              className="btn-ghost shrink-0 px-3 py-1.5 text-xs"
-            >
-              {copied ? "Copied ✓" : "Copy link"}
-            </button>
+            <div className="no-print flex shrink-0 gap-2">
+              {result.overall === "pass" && (
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="btn-primary px-3 py-1.5 text-xs"
+                >
+                  Download certificate
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={handleCopyLink}
+                className="btn-ghost px-3 py-1.5 text-xs"
+              >
+                {copied ? "Copied ✓" : "Copy link"}
+              </button>
+            </div>
           </div>
 
           {/* Asset preview with stamp */}

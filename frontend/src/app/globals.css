@@ -133,6 +133,24 @@ body {
   to { stroke-dashoffset: 0; }
 }
 
+/* ── Certificate print / save-as-PDF ────────────────────────────── */
+@media print {
+  aside,
+  .no-print { display: none !important; }
+  .print-reset-ml { margin-left: 0 !important; }
+  .bg-ledger { background: #ffffff !important; }
+  .print-cert {
+    box-shadow: none !important;
+    border-color: #d4d4d4 !important;
+    break-inside: avoid;
+  }
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  @page { margin: 1.4cm; }
+}
+
 /* Dot-grid ledger background — whisper-subtle on light ground */
 .bg-ledger {
   background-image: radial-gradient(circle, #eae8e6 1px, transparent 1px);

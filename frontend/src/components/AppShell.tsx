@@ -27,7 +27,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen">
       <aside
-        className="fixed inset-y-0 left-0 z-40 flex w-[var(--sidebar-w)] flex-col border-r border-border bg-surface"
+        className="fixed inset-y-0 left-0 z-40 flex w-[var(--sidebar-w)] flex-col border-r border-border bg-surface print:hidden"
         style={{ width: "var(--sidebar-w)" }}
       >
         <Link href="/" className="flex h-14 items-center gap-2.5 border-b border-border px-5">
@@ -67,7 +67,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       <div
-        className="flex min-h-screen flex-1 flex-col bg-ledger"
+        className="print-reset-ml flex min-h-screen flex-1 flex-col bg-ledger"
         style={{ marginLeft: "var(--sidebar-w)" }}
       >
         <main className="flex-1 animate-fade-up">{children}</main>
