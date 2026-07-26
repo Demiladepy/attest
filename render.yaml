@@ -7,8 +7,10 @@ services:
     name: attest-api
     runtime: docker
     plan: free
-    rootDir: backend
-    dockerfilePath: ./Dockerfile
+    # dockerfilePath is relative to the REPO ROOT (not dockerContext); the build
+    # context is backend/ so the Dockerfile's COPY paths resolve correctly.
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
     healthCheckPath: /api/health
     autoDeploy: true
     envVars:
