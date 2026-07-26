@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Seal } from "@/components/Seal";
 
 const DEADLINE = new Date("2026-08-03T23:59:59Z");
 
@@ -10,7 +11,7 @@ function daysUntil(target: Date) {
 }
 
 const NAV = [
-  { href: "/", label: "Console", desc: "Generate & audit" },
+  { href: "/console", label: "Console", desc: "Generate & audit" },
   { href: "/verify", label: "Verifier", desc: "Public verify" },
 ] as const;
 
@@ -18,22 +19,25 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const days = daysUntil(DEADLINE);
 
+  // Landing page owns its own full-bleed layout (top nav + footer).
+  if (pathname === "/") {
+    return <>{children}</>;
+  }
+
   return (
-    <div className="flex min-h-[calc(100vh-0px)]">
+    <div className="flex min-h-screen">
       <aside
-        className="fixed inset-y-0 left-0 z-40 flex w-[var(--sidebar-w)] flex-col border-r border-border bg-void"
+        className="fixed inset-y-0 left-0 z-40 flex w-[var(--sidebar-w)] flex-col border-r border-border bg-surface"
         style={{ width: "var(--sidebar-w)" }}
       >
-        <div className="flex h-14 items-center gap-2.5 border-b border-border px-5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-ink font-display text-[13px] font-semibold text-on-accent">
-            A
-          </div>
-          <span className="font-display text-[15px] font-medium tracking-tight text-ink">ATTEST</span>
-        </div>
+        <Link href="/" className="flex h-14 items-center gap-2.5 border-b border-border px-5">
+          <Seal size={26} className="text-ink" />
+          <span className="font-display text-[15px] font-semibold tracking-tight text-ink">ATTEST</span>
+        </Link>
 
         <nav className="flex-1 space-y-0.5 p-3">
           {NAV.map((item) => {
-            const active = pathname === item.href;
+            const active = pathname === item.href || pathname.startsWith(item.href + "/");
             return (
               <Link
                 key={item.href}
@@ -52,7 +56,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </nav>
 
         <div className="space-y-2 border-t border-border p-4">
-          <div className="rounded-[var(--radius-md)] border border-border bg-surface px-3 py-2">
+          <div className="rounded-[var(--radius-md)] border border-border bg-void px-3 py-2">
             <p className="label-caps text-muted">Hackathon</p>
             <p className="mt-1 font-mono text-sm text-ink">
               {days} <span className="text-muted">days left</span>
@@ -62,7 +66,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      <div className="flex min-h-screen flex-1 flex-col bg-ledger" style={{ marginLeft: "var(--sidebar-w)" }}>
+      <div
+        className="flex min-h-screen flex-1 flex-col bg-ledger"
+        style={{ marginLeft: "var(--sidebar-w)" }}
+      >
         <main className="flex-1 animate-fade-up">{children}</main>
       </div>
     </div>

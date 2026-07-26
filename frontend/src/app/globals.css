@@ -17,10 +17,17 @@
   --success: #047857;
   --danger: #dc2626;
   --warning: #b45309;
+  /* Signature "attested" accent — used sparingly for verified/provenance states */
+  --attested: #0e7a56;
+  --attested-soft: #ecf7f1;
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
+  --radius-xl: 24px;
   --sidebar-w: 220px;
+  --shadow-sm: 0 1px 2px rgba(10, 10, 10, 0.04), 0 1px 3px rgba(10, 10, 10, 0.06);
+  --shadow-md: 0 4px 12px rgba(10, 10, 10, 0.06), 0 2px 4px rgba(10, 10, 10, 0.04);
+  --shadow-lg: 0 24px 48px -12px rgba(10, 10, 10, 0.14);
 }
 
 @theme inline {
@@ -37,12 +44,15 @@
   --color-success: var(--success);
   --color-danger: var(--danger);
   --color-warning: var(--warning);
+  --color-attested: var(--attested);
+  --color-attested-soft: var(--attested-soft);
   --font-display: var(--font-inter);
   --font-sans: var(--font-inter);
   --font-mono: var(--font-jetbrains);
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
   --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
 }
 
 body {
@@ -51,6 +61,76 @@ body {
   font-family: var(--font-inter), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+
+/* ── Premium primitives ─────────────────────────────────────────── */
+
+.shadow-sm-soft { box-shadow: var(--shadow-sm); }
+.shadow-md-soft { box-shadow: var(--shadow-md); }
+.shadow-lg-soft { box-shadow: var(--shadow-lg); }
+
+/* Hero ground: warm off-white with a faint radial lift + fine grid */
+.hero-ground {
+  background:
+    radial-gradient(120% 80% at 50% -10%, rgba(14, 122, 86, 0.06), transparent 60%),
+    radial-gradient(80% 60% at 85% 10%, rgba(10, 10, 10, 0.03), transparent 55%),
+    var(--void);
+}
+.grid-fade {
+  background-image:
+    linear-gradient(to right, rgba(10,10,10,0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(10,10,10,0.04) 1px, transparent 1px);
+  background-size: 44px 44px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 30%, transparent 75%);
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 30%, transparent 75%);
+}
+
+.card-hover {
+  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+}
+.card-hover:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  border-color: #dcdad8;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border-radius: 9999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 0.3rem 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.btn-lg { padding: 0.85rem 1.6rem; font-size: 0.95rem; }
+
+/* Seal breathing + certificate reveal */
+@keyframes seal-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.04); opacity: 1; }
+}
+.animate-seal { animation: seal-pulse 4s ease-in-out infinite; }
+
+@keyframes seal-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.animate-seal-ring { animation: seal-rotate 40s linear infinite; transform-origin: center; }
+
+@keyframes stamp-in {
+  0% { opacity: 0; transform: scale(1.6) rotate(-12deg); }
+  60% { opacity: 1; }
+  100% { opacity: 1; transform: scale(1) rotate(-6deg); }
+}
+.animate-stamp { animation: stamp-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+
+@keyframes draw-check {
+  to { stroke-dashoffset: 0; }
 }
 
 /* Dot-grid ledger background — whisper-subtle on light ground */

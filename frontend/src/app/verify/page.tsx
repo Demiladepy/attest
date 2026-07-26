@@ -3,6 +3,7 @@
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { LineageTree } from "@/components/LineageTree";
+import { Seal } from "@/components/Seal";
 import { tamperAsset, verifyAsset, type VerificationResult } from "@/lib/api";
 
 function CheckIcon({ status }: { status: string }) {
@@ -171,12 +172,19 @@ function VerifyForm() {
           {/* Verdict banner */}
           <div className="mb-6 flex items-start justify-between gap-4">
             <div>
+              {result.overall === "pass" && (
+                <p className="label-caps mb-3 text-attested">Certificate of Provenance</p>
+              )}
               <div className="flex items-center gap-3">
-                <span
-                  className={`inline-flex h-9 w-9 items-center justify-center rounded-full border text-lg font-bold ${verdict.halo}`}
-                >
-                  {result.overall === "pass" ? "✓" : result.overall === "fail" ? "✗" : "!"}
-                </span>
+                {result.overall === "pass" ? (
+                  <Seal size={40} animated className="text-attested" />
+                ) : (
+                  <span
+                    className={`inline-flex h-9 w-9 items-center justify-center rounded-full border text-lg font-bold ${verdict.halo}`}
+                  >
+                    {result.overall === "fail" ? "✗" : "!"}
+                  </span>
+                )}
                 <h2 className="font-display text-2xl font-medium tracking-[-0.02em]">
                   {verdict.title}
                 </h2>
