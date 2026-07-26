@@ -2,6 +2,10 @@
 
 [![CI](https://github.com/Demiladepy/attest/actions/workflows/ci.yml/badge.svg)](https://github.com/Demiladepy/attest/actions/workflows/ci.yml)
 
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Demiladepy/attest)
+
+> **Backend deploy:** click the button above (reads `render.yaml`) or follow [`docs/DEPLOY_RENDER.md`](docs/DEPLOY_RENDER.md). Frontend is live on Vercel: **https://attest-black-two.vercel.app**
+
 **Compliance-grade AI media gateway for the EU AI Act era.**
 
 Every AI-generated asset that leaves an enterprise pipeline ships with embedded C2PA provenance, cryptographic signature, invisible watermark, and a tamper-evident audit trail in Backblaze B2 — turning Article 50 from a €15M legal risk into a 3-second pipeline step.

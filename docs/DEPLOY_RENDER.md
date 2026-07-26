@@ -1,13 +1,18 @@
-# DEPLOY_RENDER.md — backend live in ~5 minutes (free, no card)
+# DEPLOY_RENDER.md — backend live in ~5 minutes
+
+> **Note (2026):** Render retired its free web-service tier (Apr 23, 2026). The
+> blueprint uses the **Starter** plan (~$7/mo) and Render will require a card at
+> deploy. Cancel the service after the hackathon. Prefer no card? Use a Hugging
+> Face Docker Space instead — ask and I'll wire it.
 
 The blueprint (`render.yaml`) does everything except the parts only your account can
-do: connecting GitHub and pasting secrets. Follow these exactly.
+do: adding payment, connecting GitHub, and pasting secrets.
 
-## 1. Create the service (3 clicks)
-1. Go to **https://dashboard.render.com** → sign in (GitHub is fine).
-2. **New +** → **Blueprint**.
-3. Connect GitHub if prompted, pick **Demiladepy/attest**, click **Apply**.
-   Render reads `render.yaml` and creates a free Docker web service `attest-api`.
+## 1. Create the service
+- **One click:** the *Deploy to Render* button in the repo README, **or**
+- **Manual:** **https://dashboard.render.com** → **New +** → **Blueprint** → pick
+  **Demiladepy/attest** → **Apply**. Render reads `render.yaml` and creates the
+  Starter Docker web service `attest-api` (add a card when prompted).
 
 ## 2. Paste the prompted values
 Render will prompt for the `sync: false` variables. Copy each from local `backend/.env`:

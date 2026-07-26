@@ -6,7 +6,9 @@ services:
   - type: web
     name: attest-api
     runtime: docker
-    plan: free
+    # Render retired the free web-service tier (Apr 2026). Starter is the entry
+    # paid plan (~$7/mo) — cancel after the hackathon.
+    plan: starter
     # dockerfilePath is relative to the REPO ROOT (not dockerContext); the build
     # context is backend/ so the Dockerfile's COPY paths resolve correctly.
     dockerfilePath: ./backend/Dockerfile
