@@ -51,6 +51,12 @@ REQUIRED_SECRETS = [
 def main() -> None:
     from pathlib import Path
 
+    # Windows consoles default to cp1252 and choke on → / ✓ in our output.
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")  # type: ignore[union-attr]
+    except Exception:
+        pass
+
     from huggingface_hub import HfApi, whoami
 
     backend_dir = Path(__file__).resolve().parents[2]  # .../backend
