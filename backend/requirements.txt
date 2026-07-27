@@ -16,6 +16,9 @@ Pillow>=10.0.0
 pytest>=8.0.0
 pytest-asyncio>=0.24.0
 
+# Deploy tooling (local only — not needed at runtime)
+# huggingface_hub  # for attest.scripts.deploy_hf_space (HF Space deploy)
+
 # Optional provider packs
 # genblaze-replicate  # when REPLICATE_API_TOKEN configured
 
