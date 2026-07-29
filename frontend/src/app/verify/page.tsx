@@ -106,6 +106,16 @@ function VerifyForm() {
     }
   };
 
+  const runDemo = (kind: "signed" | "tampered") => {
+    const origin = window.location.origin;
+    const file = kind === "signed" ? "output.png" : "output-tampered.png";
+    const asset = `${origin}/demo/${file}`;
+    const manifest = `${origin}/demo/manifest.json`;
+    setUrl(asset);
+    setManifestUrl(manifest);
+    runVerify(asset, manifest);
+  };
+
   const handleCopyLink = async () => {
     const link = `${window.location.origin}/verify?asset=${encodeURIComponent(url)}${
       manifestUrl ? `&manifest=${encodeURIComponent(manifestUrl)}` : ""
@@ -130,6 +140,22 @@ function VerifyForm() {
 
   return (
     <>
+      <div className="card no-print mb-4 p-4">
+        <p className="label-caps mb-3 text-muted">Try it — one click</p>
+        <div className="flex flex-wrap gap-2">
+          <button type="button" onClick={() => runDemo("signed")} disabled={loading} className="btn-primary text-sm">
+            Verify a signed asset
+          </button>
+          <button type="button" onClick={() => runDemo("tampered")} disabled={loading} className="btn-danger-ghost text-sm">
+            Verify a tampered copy
+          </button>
+        </div>
+        <p className="mt-3 text-xs leading-relaxed text-muted">
+          A real Ed25519-signed image vs. the same image with one re-encode. Same manifest — the hash
+          check catches the tampered bytes.
+        </p>
+      </div>
+
       <div className="card no-print mb-8 p-6">
         <label className="label-caps mb-2 block text-muted">Asset URL</label>
         <input

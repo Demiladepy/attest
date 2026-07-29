@@ -1,0 +1,104 @@
+{
+  "run_id": "14f58170-383f-487c-bd59-7ce8b5109f29",
+  "parent_run_id": null,
+  "tenant_id": "demo-workspace",
+  "created_at": "2026-07-01T16:16:31.712523+00:00",
+  "brief": "Professional fintech product launch hero image, clean modern style, no text",
+  "pipeline": "attest-gmi-v1",
+  "classification": {
+    "summary": "Modality: image. Audience: professionals, likely B2B. Risk flags: low risk expected, but verify no generated text artifacts, misleading data visualizations, or implied endorsement/regulatory claims.",
+    "model": "deepseek-ai/DeepSeek-V4-Pro"
+  },
+  "outputs": [
+    {
+      "modality": "image",
+      "sha256": "ff75b9ec23a64b59c6b8ff002af2abc3af2960d6708cc67232e85fbaf0115523",
+      "mime": "image/png",
+      "provider": "gmicloud-seedream"
+    }
+  ],
+  "steps": [
+    {
+      "id": "classify",
+      "provider": "GMI Llama 3",
+      "status": "complete"
+    },
+    {
+      "id": "storyboard",
+      "provider": "FLUX",
+      "status": "complete"
+    },
+    {
+      "id": "video",
+      "provider": "Wan (GMI)",
+      "status": "complete"
+    },
+    {
+      "id": "variants",
+      "provider": "Decart Lucy 2.1",
+      "status": "complete"
+    },
+    {
+      "id": "voice",
+      "provider": "ElevenLabs",
+      "status": "complete"
+    },
+    {
+      "id": "transcript",
+      "provider": "AssemblyAI",
+      "status": "complete"
+    },
+    {
+      "id": "music",
+      "provider": "Stability Audio",
+      "status": "complete"
+    },
+    {
+      "id": "sign",
+      "provider": "ATTEST ComplianceSink",
+      "status": "complete"
+    },
+    {
+      "id": "c2pa",
+      "provider": "c2pa-python",
+      "status": "complete"
+    },
+    {
+      "id": "lock",
+      "provider": "Backblaze B2",
+      "status": "complete"
+    },
+    {
+      "id": "audit",
+      "provider": "B2 Event Notifications",
+      "status": "complete"
+    }
+  ],
+  "attest": {
+    "version": "0.1.0",
+    "tenant_id": "demo-workspace",
+    "signature": {
+      "algorithm": "ed25519",
+      "public_key_hex": "cd09bb50779be236fa5a01e2ffde6f191827554a87a70e9a2c898870800421a5",
+      "signature_b64": "O4ff5Zd+UgIUlj3TlUNz2RHg7ryeEea6ZYo4CPhpNVrwq6PvveHdEkO2joWOaEkZeiVphfwGZRO8UwQxRkoZCQ==",
+      "signed_at": "2026-07-29T04:12:24.123243+00:00",
+      "manifest_sha256": "b9a94771cf8a10dd7e4cc070ef7691d6cadee6c91ca7e994cd0341138e185567"
+    },
+    "watermark": {
+      "detected": true,
+      "confidence": 0.92,
+      "method": "trustmark-stub"
+    },
+    "c2pa": {
+      "embedded": true,
+      "valid": true,
+      "detail": "c2pa-python stub"
+    },
+    "transcript": null,
+    "lineage": [],
+    "object_lock": {
+      "mode": "GOVERNANCE",
+      "retain_days": 365
+    }
+  }
+}

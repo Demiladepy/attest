@@ -1,4 +1,7 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+// In production NEXT_PUBLIC_API_URL is unset → call same-origin Next API routes.
+// Local dev sets it to http://localhost:8000 (.env.local) to reach the Python backend.
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_URL ?? (typeof window !== "undefined" ? "" : "http://localhost:8000");
 
 export type Asset = {
   id: string;
@@ -118,7 +121,8 @@ export function streamGeneration(
   parentRunId?: string | null,
 ): () => void {
   const controller = new AbortController();
-  const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+  const API =
+    process.env.NEXT_PUBLIC_API_URL ?? (typeof window !== "undefined" ? "" : "http://localhost:8000");
 
   (async () => {
     const res = await fetch(`${API}/api/assets/generate/stream`, {
