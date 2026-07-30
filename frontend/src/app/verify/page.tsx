@@ -4,7 +4,8 @@ import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { LineageTree } from "@/components/LineageTree";
 import { Seal } from "@/components/Seal";
-import { tamperAsset, verifyAsset, type VerificationResult } from "@/lib/api";
+import { TamperPlayground } from "@/components/TamperPlayground";
+import { verifyAsset, type VerificationResult } from "@/lib/api";
 
 function CheckIcon({ status }: { status: string }) {
   if (status === "pass") return <span className="text-success">✓</span>;
@@ -58,7 +59,6 @@ function VerifyForm() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<VerificationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [tampering, setTampering] = useState(false);
   const [imgOk, setImgOk] = useState(true);
   const [copied, setCopied] = useState(false);
   const autoRan = useRef(false);
@@ -90,21 +90,6 @@ function VerifyForm() {
     setManifestUrl(manifest);
     runVerify(asset, manifest);
   }, [searchParams, runVerify]);
-
-  const handleTamper = async () => {
-    if (!url.trim()) return;
-    setTampering(true);
-    setError(null);
-    try {
-      const t = await tamperAsset(url, undefined, result?.manifest?.run_id ?? undefined);
-      setUrl(t.tampered_url);
-      await runVerify(t.tampered_url, manifestUrl);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Tamper simulation failed");
-    } finally {
-      setTampering(false);
-    }
-  };
 
   const runDemo = (kind: "signed" | "tampered") => {
     const origin = window.location.origin;
@@ -181,16 +166,6 @@ function VerifyForm() {
         >
           {loading ? "Verifying…" : "Verify"}
         </button>
-        {result?.overall === "pass" && !url.includes("-tampered") && (
-          <button
-            type="button"
-            onClick={handleTamper}
-            disabled={tampering || loading}
-            className="btn-danger-ghost mt-3 w-full"
-          >
-            {tampering ? "Re-encoding…" : "Simulate tamper (re-encode)"}
-          </button>
-        )}
       </div>
 
       {result && verdict && (
@@ -326,6 +301,12 @@ function VerifyForm() {
           )}
 
           <LineageTree nodes={result.lineage} />
+        </div>
+      )}
+
+      {result?.overall === "pass" && isImage && imgOk && (
+        <div className="no-print">
+          <TamperPlayground assetUrl={result.asset_url} expectedSha={output?.sha256} />
         </div>
       )}
     </>
