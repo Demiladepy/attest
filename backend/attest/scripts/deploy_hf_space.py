@@ -71,11 +71,17 @@ def main() -> None:
             "https://huggingface.co/settings/tokens)"
         )
 
+    # Windows consoles default to cp1252 and choke on non-ASCII; force UTF-8.
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")  # type: ignore[attr-defined]
+    except Exception:
+        pass
+
     api = HfApi()
     repo_id = f"{me}/{SPACE_NAME}"
     space_url = f"https://{me.lower()}-{SPACE_NAME}.hf.space"
 
-    print(f"→ Creating/updating Space: {repo_id}")
+    print(f"-> Creating/updating Space: {repo_id}")
     api.create_repo(
         repo_id=repo_id,
         repo_type="space",
@@ -84,7 +90,7 @@ def main() -> None:
         private=False,
     )
 
-    print("→ Uploading README (HF frontmatter)")
+    print("-> Uploading README (HF frontmatter)")
     api.upload_file(
         path_or_fileobj=SPACE_README.encode("utf-8"),
         path_in_repo="README.md",
@@ -92,7 +98,7 @@ def main() -> None:
         repo_type="space",
     )
 
-    print("→ Uploading backend (Dockerfile, requirements.txt, attest/)")
+    print("-> Uploading backend (Dockerfile, requirements.txt, attest/)")
     api.upload_folder(
         folder_path=str(backend_dir),
         repo_id=repo_id,
@@ -113,7 +119,7 @@ def main() -> None:
         ],
     )
 
-    print("→ Setting non-secret Space variables")
+    print("-> Setting non-secret Space variables")
     non_secret_vars = {
         "PORT": "8000",  # keep container port aligned with README app_port
         "DEMO_MODE": "true",
@@ -132,9 +138,9 @@ def main() -> None:
             continue
         api.add_space_variable(repo_id=repo_id, key=key, value=value)
 
-    print("\n✓ Space pushed:", space_url)
-    print("\nNEXT — set these 4 secrets in the Space UI:")
-    print("  Settings → Variables and secrets → New secret (copy values from backend/.env):")
+    print("\n[OK] Space pushed:", space_url)
+    print("\nNEXT - set these 4 secrets in the Space UI:")
+    print("  Settings > Variables and secrets > New secret (copy values from backend/.env):")
     for key in REQUIRED_SECRETS:
         print(f"    - {key}")
     print("\nThe Space rebuilds automatically after secrets are set.")
