@@ -27,8 +27,8 @@ Existing tools solve pieces — Adobe Content Credentials for creative teams, Tr
 |---|---|
 | 🌐 Live app (landing + public verifier) | **https://attest-black-two.vercel.app** |
 | ✅ Verify a signed asset (one click) | [attest-black-two.vercel.app/verify](https://attest-black-two.vercel.app/verify) |
-| 🎬 Demo video (3 min) | `[PASTE YOUTUBE URL]` |
-| 🔗 Genblaze upstream PR (Mode 2 Ed25519 signer) | `[PASTE PR URL]` |
+| 🎬 Demo video (3 min) | https://youtu.be/FvbReqgJXlQ |
+| 🔗 Genblaze Mode 2 Ed25519 signer (contribution branch) | [Demiladepy/genblaze @ feat/mode2-ed25519-signer](https://github.com/Demiladepy/genblaze/tree/feat/mode2-ed25519-signer) |
 | 💻 Source | https://github.com/Demiladepy/attest |
 
 > The **Console** (generate → sign) runs locally by design — the Ed25519 **private signing key never touches a public host**, which is the correct security posture for a signing service. The public **verifier** is fully live and needs no login.
@@ -78,7 +78,7 @@ flowchart LR
 | Sponsor tech | How ATTEST uses it |
 |---|---|
 | **Backblaze B2** | Object Lock on every signed manifest (tamper-evident), native `b2sdk` uploads, a traversal-guarded storage proxy for private buckets, durable URLs powering the public verifier |
-| **Backblaze Genblaze** | `Pipeline` orchestration, a custom `ComplianceSink`, multi-step flow with fallback chains, `parent_run_id` revision lineage. We also **shipped the Mode 2 Ed25519 signer upstream** — see [`genblaze-pr/PR_BODY.md`](genblaze-pr/PR_BODY.md) and the PR: `[PASTE PR URL]` |
+| **Backblaze Genblaze** | `Pipeline` orchestration, a custom `ComplianceSink`, multi-step flow with fallback chains, `parent_run_id` revision lineage. We also **built the Mode 2 Ed25519 signer for the Genblaze SDK itself** — see [`genblaze-pr/PR_BODY.md`](genblaze-pr/PR_BODY.md) and the branch: [Demiladepy/genblaze @ feat/mode2-ed25519-signer](https://github.com/Demiladepy/genblaze/tree/feat/mode2-ed25519-signer) |
 | **GMI Cloud** | DeepSeek-V4-Pro for the compliance classifier; Seedream 5.0-lite for real image generation (fits the $5 credit) |
 
 ---
@@ -163,7 +163,7 @@ We implemented **Trust Mode 2 (authenticated integrity)** from Genblaze's own `d
 
 **Scope of the PR:** a `Signer` abstract base, an `Ed25519Signer` implementation, a `verify_signature_bundle` helper, an optional `[signing]` extra (keeps core dependency-light), unit tests, and updated trust-modes docs. CLI `sign`/`verify` commands are a documented follow-up.
 
-**PR:** `[PASTE PR URL]` · Even without ATTEST, every builder on Backblaze's SDK now inherits Mode 2 signing.
+**Branch:** [Demiladepy/genblaze @ feat/mode2-ed25519-signer](https://github.com/Demiladepy/genblaze/tree/feat/mode2-ed25519-signer) (fork of `backblaze-labs/genblaze`, one commit ahead) · Even without ATTEST, this brings Mode 2 signing to Backblaze's SDK.
 
 ---
 
@@ -190,10 +190,10 @@ None are technical blockers for what Article 50 requires today.
 
 ## Author
 
-**Demilade Ayeku** — University of Lagos, Nigeria. Builder ([@0xharp](https://x.com/)), focused on cryptographic infrastructure and applied AI.
+**Demilade Ayeku** — University of Lagos, Nigeria. Builder ([@0xharp](https://x.com/0xharp)), focused on cryptographic infrastructure and applied AI.
 
 - GitHub: [Demiladepy](https://github.com/Demiladepy)
-- LinkedIn: `[PASTE URL]`
+- LinkedIn: [demilade-ayeku](https://www.linkedin.com/in/demilade-ayeku)
 
 ## License
 
