@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Seal } from "@/components/Seal";
 
 const DEADLINE = new Date("2026-08-03T23:59:59Z");
@@ -17,7 +18,11 @@ const NAV = [
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const days = daysUntil(DEADLINE);
+  // Compute after mount — Date.now() differs between server and client render,
+  // which trips React's hydration check.
+  const [days, setDays] = useState<number | null>(null);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- mount-only; avoids Date.now() hydration mismatch
+  useEffect(() => setDays(daysUntil(DEADLINE)), []);
 
   // Landing page owns its own full-bleed layout (top nav + footer).
   if (pathname === "/") {
@@ -59,7 +64,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="rounded-[var(--radius-md)] border border-border bg-void px-3 py-2">
             <p className="label-caps text-muted">Hackathon</p>
             <p className="mt-1 font-mono text-sm text-ink">
-              {days} <span className="text-muted">days left</span>
+              {days ?? "—"} <span className="text-muted">days left</span>
             </p>
           </div>
           <p className="label-caps text-center text-muted">EU AI Act · Art. 50</p>

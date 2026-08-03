@@ -12,7 +12,12 @@ export function DemoIntroBanner() {
   const [storage, setStorage] = useState<"local" | "b2" | "unknown">("unknown");
   const [pipeline, setPipeline] = useState<"demo" | "gmi" | "replicate">("demo");
   const [b2WriteOk, setB2WriteOk] = useState<boolean | null>(null);
-  const days = daysUntil(DEADLINE);
+  // Date.now() differs server vs client → compute after mount to avoid a
+  // hydration mismatch.
+  const [days, setDays] = useState<number | null>(null);
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- mount-only; avoids Date.now() hydration mismatch
+  useEffect(() => setDays(daysUntil(DEADLINE)), []);
 
   useEffect(() => {
     const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -54,7 +59,7 @@ export function DemoIntroBanner() {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <span className="rounded-full border border-border bg-void px-3 py-1.5 font-mono text-xs text-ink">
-            {days}d <span className="text-muted">to submit</span>
+            {days ?? "—"}d <span className="text-muted">to submit</span>
           </span>
           <span
             className={`rounded-full border px-3 py-1.5 text-xs font-medium ${

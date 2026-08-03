@@ -31,13 +31,16 @@ export function Seal({
           const a = (i / ticks.length) * Math.PI * 2;
           const r1 = 40;
           const r2 = i % 4 === 0 ? 33 : 36.5;
+          // Round so server and client serialize identical strings — raw
+          // Math.cos/sin differ in the last float digit and trip hydration.
+          const round = (n: number) => Math.round(n * 100) / 100;
           return (
             <line
               key={i}
-              x1={50 + r1 * Math.cos(a)}
-              y1={50 + r1 * Math.sin(a)}
-              x2={50 + r2 * Math.cos(a)}
-              y2={50 + r2 * Math.sin(a)}
+              x1={round(50 + r1 * Math.cos(a))}
+              y1={round(50 + r1 * Math.sin(a))}
+              x2={round(50 + r2 * Math.cos(a))}
+              y2={round(50 + r2 * Math.sin(a))}
               stroke="currentColor"
               strokeOpacity="0.35"
               strokeWidth="1.2"
